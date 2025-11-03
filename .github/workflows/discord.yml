@@ -1,0 +1,25 @@
+name: Notify Discord on PR events
+
+on:
+  pull_request:
+    types: [opened, reopened]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification for new PR
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened')
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"📢 **New Pull Request Created!**\n📄 Title: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\n👤 Author: ${{ github.event.pull_request.user.login }}\"}" \
+          ${{ secrets.DISCWEBHOOK }}
+
+      - name: Send Discord notification for PR approval
+        if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved'
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"✅ **Pull Request Approved!**\n📄 [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\n👤 Approved by: ${{ github.event.review.user.login }}\"}" \
+          ${{ secrets.DISCWEBHOOK }}
