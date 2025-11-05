@@ -1,10 +1,10 @@
-﻿namespace RMP
+namespace RMP;
+
+internal class Program
 {
-    internal class Program
+    private static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
-        }
+        var ui = new SimpleUI();
+        ui.Run();
     }
 }
