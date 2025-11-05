@@ -34,7 +34,7 @@ public class SimpleUI
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .AddChoices(menuItems)
-                .HighlightStyle(new Style(Color.Yellow))
+                .HighlightStyle(new Style(Color.Blue))
                 .PageSize(menuItems.Length)
             );
 
@@ -63,7 +63,8 @@ public class SimpleUI
             if(choice == "Exit")
             {
                 Console.Clear();
-                AnsiConsole.MarkupLine("[slowblink]Goodbye, see you later![/]");
+                AnsiConsole.MarkupLine("Credits: ");
+                AnsiConsole.MarkupLine("Made by the Runtime Rebels Team");
                 Thread.Sleep(500);
                 break;
             }
@@ -74,7 +75,7 @@ public class SimpleUI
     {
         AnsiConsole.Clear();
 
-        
+
         AnsiConsole.MarkupLine("[slowblink]Scanning directory...[/]");
         Thread.Sleep(1000);
         Console.Clear();
@@ -83,74 +84,104 @@ public class SimpleUI
         string[] songs = Directory.GetFiles(musicFolder, "*.mp3");
 
         Random rnd = new Random();
-        string randomSong = songs[rnd.Next(songs.Length)];
+        int songindex = rnd.Next(songs.Length);
+        string currentsong = songs[songindex];
 
         WindowsMediaPlayer music = new WindowsMediaPlayer();
-        music.URL = randomSong;
+        music.URL = currentsong;
         music.controls.play();
-        
-        string songName = Path.GetFileNameWithoutExtension(music.URL);
-        string safeName = Markup.Escape(songName);
 
-        AnsiConsole.MarkupLine($"[blue]Now playing:[/] {safeName}");
-
-        Thread.Sleep(100);
-        double duration = 0;
-        int waitCount = 0;
-        while ((duration = music.currentMedia?.duration ?? 0) <= 0 && waitCount < 50)
+        if (Console.KeyAvailable)
         {
-            Thread.Sleep(100);
-            waitCount++;
-        }
-
-        if(duration <= 0)
-        {
-            AnsiConsole.MarkupLine("[red]Could not get song duration. Displaying simulated progress...[/]");
-            duration = 100; 
-        }
-
-        AnsiConsole.Progress()
-            .Columns(new ProgressColumn[]
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.RightArrow)
             {
+                songindex = (songindex + 1) % songs.Length;
+                currentsong = songs[songindex];
+                music.URL = currentsong;
+                music.controls.play();
+            }
+        }
+
+        string songName = Path.GetFileNameWithoutExtension(music.URL);
+            string safeName = Markup.Escape(songName);
+
+            AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{safeName}[/]");
+
+            AnsiConsole.MarkupLine("[blue]Press ESC to go back to menu[/]");
+
+            Thread.Sleep(100);
+            double duration = 0;
+            int waitCount = 0;
+            while ((duration = music.currentMedia?.duration ?? 0) <= 0 && waitCount < 50)
+            {
+                Thread.Sleep(100);
+                waitCount++;
+            }
+
+            if (duration <= 0)
+            {
+                AnsiConsole.MarkupLine("[red]Could not get song duration. Displaying simulated progress...[/]");
+                duration = 100;
+            }
+
+            AnsiConsole.Progress()
+                .Columns(new ProgressColumn[]
+                {
             new TaskDescriptionColumn(),
             new ProgressBarColumn(),
             new ElapsedTimeColumn(),
             new SpinnerColumn()
-            })
+                })
 
-            .Start(ctx =>
-            {
-                music.controls.play();
-                var task = ctx.AddTask($"[bold]{safeName}[/]", maxValue: duration);
-
-                while (!ctx.IsFinished)
+                .Start(ctx =>
                 {
-                    if(Console.KeyAvailable)
+                    music.controls.play();
+                    var task = ctx.AddTask($"[bold]{safeName}[/]", maxValue: duration);
+
+                    while (!ctx.IsFinished)
                     {
-                        var key = Console.ReadKey(true);
-                        if(key.Key == ConsoleKey.Escape)
+                        if (Console.KeyAvailable)
                         {
-                            music.controls.stop();
+                            var key = Console.ReadKey(true);
+                            if (key.Key == ConsoleKey.Escape)
+                            {
+                                music.controls.stop();
+                                break;
+                            }
+                        }
+
+                        //AnsiConsole.MarkupLine("Use the arrow keys (left and right) to change track");
+
+                        //var changeTrack = Console.ReadKey(true);
+
+                        //if (changeTrack.Key == ConsoleKey.RightArrow)
+                        //{
+                        //    music.controls.next();
+                        //}
+
+                        //if (changeTrack.Key == ConsoleKey.LeftArrow)
+                        //{
+                        //    music.controls.previous();
+                        //}
+
+                        double position = music.controls.currentPosition;
+
+                        if (position >= duration || music.playState == WMPPlayState.wmppsStopped)
+                        {
+                            task.Value = duration;
                             break;
                         }
+
+                        task.Value = position;
+                        Thread.Sleep(200);
                     }
+                });
 
-                    double position = music.controls.currentPosition;
-
-                    if(position >= duration || music.playState == WMPPlayState.wmppsStopped)
-                    {
-                        task.Value = duration;
-                        break;
-                    }
-
-                    task.Value = position;
-                    Thread.Sleep(200);
-                }   
-            });
-        music.controls.stop();
-        Console.Clear();
-        Run();
+            Console.Clear();
+            Run();
     }
+    
 
     private void ShowSearch()
     {
