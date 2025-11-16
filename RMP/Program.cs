@@ -1,6 +1,8 @@
-namespace RMP;
+﻿using System;
+using System.IO;
+using RMP.Services;
 
-internal class Program
+class Program
 {
     private static void Main(string[] args)
     {
