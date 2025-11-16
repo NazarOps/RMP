@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nul)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(if exist UI rmdir /S /Q UI)",
+      "Bash(if exist ARCHITECTURE.md del /F /Q ARCHITECTURE.md)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
