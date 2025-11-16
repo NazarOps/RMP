@@ -1,4 +1,9 @@
-﻿using Spectre.Console;
+﻿// MusicPlayback.cs
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Spectre.Console;
 using WMPLib;
 
 namespace RMP
@@ -9,130 +14,172 @@ namespace RMP
 
         public void PlayMusic()
         {
-            bool keeyplaying = true;
-
-            while (keeyplaying)
+            WindowsMediaPlayer music = null;
+            try
             {
-                AnsiConsole.Clear();
-                AnsiConsole.MarkupLine("[slowblink]Scanning directory...[/]");
-                Thread.Sleep(1000);
-                AnsiConsole.Clear();
+                music = new WindowsMediaPlayer();
+                bool keepPlaying = true;
 
-                string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                string[] songs = Directory.GetFiles(musicFolder, "*.mp3");
-
-                if (songs.Length == 0)
+                while (keepPlaying)
                 {
-                    AnsiConsole.MarkupLine("[red]No MP3 files found in your Music folder.[/]");
-                    Thread.Sleep(1500);
-                    return;
-                }
+                    AnsiConsole.Clear();
+                    AnsiConsole.MarkupLine("[slowblink]Scanning directory...[/]");
+                    Thread.Sleep(800);
+                    AnsiConsole.Clear();
 
-                string currentsong = songs[songindex];
+                    string musicFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                    string[] songs = Directory.GetFiles(musicFolder, "*.mp3");
 
-                WindowsMediaPlayer music = new WindowsMediaPlayer();
-                music.URL = currentsong;
-
-                string songName = Path.GetFileNameWithoutExtension(music.URL);
-                string safeName = Markup.Escape(songName);
-
-                AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{safeName}[/]");
-                AnsiConsole.MarkupLine("[blue]Press ESC to go back to menu[/]");
-
-                Thread.Sleep(100);
-                double duration = 0;
-                int waitCount = 0;
-                while ((duration = music.currentMedia?.duration ?? 0) <= 0 && waitCount < 50)
-                {
-                    Thread.Sleep(100);
-                    waitCount++;
-
-                }
-                if (duration <= 0) duration = 100;
-
-                bool stopSong = false;
-
-                AnsiConsole.Progress()
-                    .AutoRefresh(true)
-                    .Columns(new ProgressColumn[]
+                    if (songs.Length == 0)
                     {
-                new TaskDescriptionColumn(),
-                new ProgressBarColumn()
-                {
-                    CompletedStyle = new Style(Color.Blue)
-                },
-                new PercentageColumn(),
-                new SpinnerColumn()
-                {
-                    Style = new Style(Color.Blue)
-                }
-                    })
-                    .Start(ctx =>
-                    {
-                        music.controls.play();
-                        var task = ctx.AddTask($"[bold]{safeName}[/]", maxValue: duration);
-                        AnsiConsole.WriteLine("Use <-- and --> arrow keys to change track");
+                        AnsiConsole.MarkupLine("[red]No MP3 files found in your Music folder.[/]");
+                        Thread.Sleep(1500);
+                        return;
+                    }
 
-                        while (!ctx.IsFinished && !stopSong)
+                    songindex = (songindex % songs.Length + songs.Length) % songs.Length;
+                    string currentsong = songs[songindex];
+
+                    // set URL (COM)
+                    music.URL = currentsong;
+
+                    string songName = Path.GetFileNameWithoutExtension(currentsong);
+                    string safeName = Markup.Escape(songName);
+
+                    AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{safeName}[/]");
+                    AnsiConsole.MarkupLine("[blue]Press ESC to go back to menu[/]");
+
+                    // give the player a short moment to load metadata
+                    int waitCount = 0;
+                    double duration = 0;
+                    while (waitCount < 30)
+                    {
+                        duration = SafeGetDouble(() => music.currentMedia?.duration ?? 0);
+                        if (duration > 0) break;
+                        Thread.Sleep(100);
+                        waitCount++;
+                    }
+
+                    if (duration <= 0) duration = 100; // fallback
+
+                    bool stopSong = false;
+
+                    AnsiConsole.Progress()
+                        .AutoRefresh(true)
+                        .Columns(new ProgressColumn[]
                         {
-                            double position = 0;
-                            try
+                            new TaskDescriptionColumn(),
+                            new ProgressBarColumn
                             {
-                                position = music.controls.currentPosition;
-                            }
-                            catch
+                                CompletedStyle = new Style(Color.Blue)
+                            },
+                            new PercentageColumn(),
+                            new SpinnerColumn { Style = new Style(Color.Blue) }
+                        })
+                        .Start(ctx =>
+                        {
+                            music.controls.play();
+                            var task = ctx.AddTask($"[bold]{safeName}[/]", maxValue: duration);
+                            AnsiConsole.WriteLine("Use <-- and --> arrow keys to change track");
+
+                            while (!ctx.IsFinished && !stopSong)
                             {
-                                position = 0;
-                            }
+                                double position = SafeGetDouble(() => music.controls.currentPosition);
 
-                            if (position < 0) position = 0;
-                            if (position > duration) position = duration;
+                                if (position < 0) position = 0;
+                                if (position > duration) position = duration;
 
-                            task.Value = position;
+                                task.Value = position;
 
-                            if (position >= duration || music.playState == WMPPlayState.wmppsStopped)
-                            {
-                                task.Value = duration; // fill progress bar to 100
-                                task.Increment(0.5);
-                                stopSong = true;
-                                Thread.Sleep(100);
-                                songindex = (songindex + 1) % songs.Length;
-
-                            }
-
-                            if (Console.KeyAvailable)
-                            {
-                                switch (Console.ReadKey().Key)
+                                if (position >= duration || SafeGetInt(() => (int)music.playState) == (int)WMPPlayState.wmppsStopped)
                                 {
-                                    case ConsoleKey.RightArrow:
-                                        task.StopTask();
-                                        stopSong = true;
-                                        music.controls.stop();
-                                        Thread.Sleep(100);
-                                        songindex = (songindex + 1) % songs.Length;
-                                        break;
-
-                                    case ConsoleKey.LeftArrow:
-                                        task.StopTask();
-                                        stopSong = true;
-                                        music.controls.stop();
-                                        Thread.Sleep(100);
-                                        songindex = (songindex - 1) % songs.Length;
-                                        break;
-
-                                    case ConsoleKey.Escape:
-                                        task.StopTask();
-                                        stopSong = true;
-                                        music.controls.stop();
-                                        keeyplaying = false;
-                                        break;
+                                    stopSong = true;
+                                    Thread.Sleep(100);
+                                    songindex = (songindex + 1) % songs.Length;
+                                    break;
                                 }
+
+                                if (Console.KeyAvailable)
+                                {
+                                    var key = Console.ReadKey(true).Key;
+                                    switch (key)
+                                    {
+                                        case ConsoleKey.RightArrow:
+                                            task.StopTask();
+                                            stopSong = true;
+                                            SafeCall(() => music.controls.stop());
+                                            Thread.Sleep(100);
+                                            songindex = (songindex + 1) % songs.Length;
+                                            break;
+
+                                        case ConsoleKey.LeftArrow:
+                                            task.StopTask();
+                                            stopSong = true;
+                                            SafeCall(() => music.controls.stop());
+                                            Thread.Sleep(100);
+                                            songindex = (songindex - 1 + songs.Length) % songs.Length;
+                                            break;
+
+                                        case ConsoleKey.Escape:
+                                            task.StopTask();
+                                            stopSong = true;
+                                            SafeCall(() => music.controls.stop());
+                                            keepPlaying = false;
+                                            break;
+                                    }
+                                }
+
+                                Thread.Sleep(250);
                             }
-                        }
+                        });
 
-                    });
-
+                    
+                }
             }
+            finally
+            {
+                
+                if (music != null)
+                {
+                    try
+                    {
+                        music.controls.stop();
+                        Marshal.ReleaseComObject(music);
+                    }
+                    catch { }
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+        }
+
+        private static void SafeCall(Action act)
+        {
+            try { act(); }
+            catch (COMException) { }
+            catch { }
+        }
+
+        private static double SafeGetDouble(Func<double> get)
+        {
+            try
+            {
+                return get();
+            }
+            catch (COMException)
+            {
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        private static int SafeGetInt(Func<int> get)
+        {
+            try { return get(); }
+            catch (COMException) { return 0; }
+            catch { return 0; }
         }
     }
 }
