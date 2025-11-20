@@ -81,7 +81,7 @@ namespace RMP
                                 CompletedStyle = new Style(Color.Blue)
                             },
                             new PercentageColumn(),
-                            new SpinnerColumn { Style = new Style(Color.Blue) }
+                            new SpinnerColumn(Spinner.Known.Dots2) { Style = new Style(Color.Blue) }
                         })
                         .Start(ctx =>
                         {

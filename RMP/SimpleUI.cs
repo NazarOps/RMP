@@ -1,4 +1,5 @@
 using Spectre.Console;
+using System.Text;
 using WMPLib;
 
 namespace RMP;
@@ -8,6 +9,7 @@ public class SimpleUI
     private int songindex = 0;
     public void Run()
     {
+        Console.OutputEncoding = Encoding.UTF8; // for SpectreConsole spinners support
         bool menu = true;
 
         
