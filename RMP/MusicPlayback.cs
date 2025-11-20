@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Spectre.Console;
 using WMPLib;
+using RMP.Services;
 
 namespace RMP
 {
@@ -43,10 +44,16 @@ namespace RMP
                     // set URL (COM)
                     music.URL = currentsong;
 
-                    string songName = Path.GetFileNameWithoutExtension(currentsong);
-                    string safeName = Markup.Escape(songName);
+                    var meta = MetadataReader.Read(currentsong);
+                    string safeName = Markup.Escape(meta.Title ?? Path.GetFileNameWithoutExtension(currentsong));
+                    string artist = Markup.Escape("Artist: " + meta.Artist ?? "Okänd artist");
+                    string album = Markup.Escape("\nAlbum: " + meta.Album ?? "Okänt album");
+                    string yearReleased = (meta.Year > 0) ? meta.Year.ToString() : "Unknown";
+                    string songDuration = Markup.Escape("Duration: " + meta.Duration ?? "Unknown");
+                   
 
                     AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{safeName}[/]");
+                    AnsiConsole.MarkupLine($"[grey]{artist} — {album} ({yearReleased}) \n{songDuration}[/]");
                     AnsiConsole.MarkupLine("[blue]Press ESC to go back to menu[/]");
 
                     // give the player a short moment to load metadata
