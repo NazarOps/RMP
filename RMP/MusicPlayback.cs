@@ -53,7 +53,7 @@ namespace RMP
                    
 
                     AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{safeName}[/]");
-                    AnsiConsole.MarkupLine($"[grey]{artist} — {album} ({yearReleased}) \n{songDuration}[/]");
+                    AnsiConsole.MarkupLine($"[blue]{artist} — {album} ({yearReleased}) \n{songDuration}[/]");
                     AnsiConsole.MarkupLine("[blue]Press ESC to go back to menu[/]");
 
                     // give the player a short moment to load metadata

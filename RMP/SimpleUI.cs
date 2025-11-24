@@ -99,7 +99,8 @@ public class SimpleUI
                     break;
 
                 case "Browse":
-                    ShowBrowse();
+                    Browser librarybrowser = new Browser();
+                    librarybrowser.ShowBrowse();
                     break;
 
                 case "Player Controls":
@@ -129,22 +130,6 @@ public class SimpleUI
         AnsiConsole.MarkupLine($"[yellow]Searching for: {searchTerm}[/]");
         AnsiConsole.MarkupLine("[dim]Press any key to return...[/]");
         Console.ReadKey();
-    }
-
-    private void ShowBrowse()
-    {
-        AnsiConsole.Clear();
-        var category = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Browse by:")
-                .AddChoices(new[] { "Artists", "Albums", "Genres", "Back" }));
-
-        if (category != "Back")
-        {
-            AnsiConsole.MarkupLine($"[yellow]Browsing {category}...[/]");
-            AnsiConsole.MarkupLine("[dim]Press any key to return...[/]");
-            Console.ReadKey();
-        }
     }
 
     private void ShowPlayerControls()
