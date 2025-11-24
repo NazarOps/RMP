@@ -92,6 +92,7 @@ namespace RMP
 
                     AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{selectedEscaped}[/]");
                     AnsiConsole.MarkupLine($"[grey]Full path:[/] {Markup.Escape(selectedPath)}");
+                    AnsiConsole.Markup("\nUse [blue]↑↓[/] to change volume");
 
                     int waitCount = 0;
                     double duration = 0;
@@ -125,7 +126,7 @@ namespace RMP
 
                             // Continue?
                             AnsiConsole.Markup("\nPress [blue]ENTER[/] to pick another song");
-                            AnsiConsole.Markup("\nUse [blue]↑↓[/] to change volume");
+                            
 
                             while (!ctx.IsFinished)
                             {
