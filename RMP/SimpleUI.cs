@@ -95,7 +95,8 @@ public class SimpleUI
                     break;
 
                 case "Search":
-                    ShowSearch();
+                    linq linq = new linq();
+                    linq.Search();
                     break;
 
                 case "Browse":
@@ -120,15 +121,6 @@ public class SimpleUI
 
             }
         }
-    }
-
-    private void ShowSearch()
-    {
-        AnsiConsole.Clear();
-        var searchTerm = AnsiConsole.Ask<string>("Enter search term:");
-        AnsiConsole.MarkupLine($"[yellow]Searching for: {searchTerm}[/]");
-        AnsiConsole.MarkupLine("[dim]Press any key to return...[/]");
-        Console.ReadKey();
     }
 
     private void ShowBrowse()
