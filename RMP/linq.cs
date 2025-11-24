@@ -138,6 +138,7 @@ namespace RMP
                                                         stopSong = true;
                                                         SafeCall(() => music.controls.stop());
                                                         keepplaying = false;
+                                                        search = false;
                                                         break;
                                                 }
                                             }
