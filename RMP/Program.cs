@@ -9,7 +9,7 @@ class Program
     private static void Main(string[] args)
     {
         LogService logService = new LogService();
-        var ui = new SimpleUI();
+        var ui = new SimpleUI(logService);
         ui.Run();
     }
 }

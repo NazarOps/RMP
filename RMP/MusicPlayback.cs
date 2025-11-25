@@ -12,8 +12,8 @@ namespace RMP
     public class MusicPlayback
     {
         public int songindex = 0;
-        public LogService LogService { get; set; }
-        public MusicPlayback(LogService logService) { LogService = logService; }
+        private LogService _logService { get; set; }
+        public MusicPlayback(LogService logService) { _logService = logService; }
 
         public void PlayMusic()
         {
@@ -88,6 +88,7 @@ namespace RMP
                         .Start(ctx =>
                         {
                             music.controls.play();
+                            _logService.LogInfo($"{safeName}");
                             var task = ctx.AddTask($"[bold]{safeName}[/]", maxValue: duration);
                             AnsiConsole.WriteLine("Use <-- and --> arrow keys to change track");
 
@@ -157,7 +158,7 @@ namespace RMP
                     }
                     catch(Exception e) 
                     {
-                        LogService.LogError(e.Message);
+                        _logService.LogError(e.Message);
                     }
                 }
                 GC.Collect();

@@ -94,7 +94,7 @@ public class SimpleUI
             switch (choice)
             {
                 case "Play":
-                    MusicPlayback musicPlayback = new MusicPlayback();
+                    MusicPlayback musicPlayback = new MusicPlayback(LogService);
                     musicPlayback.PlayMusic();
                     break;
 
