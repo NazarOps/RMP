@@ -8,7 +8,8 @@ class Program
 {
     private static void Main(string[] args)
     {
-        var ui = new SimpleUI();
+        LogService logService = new LogService();
+        var ui = new SimpleUI(logService);
         ui.Run();
     }
 }

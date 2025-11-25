@@ -1,3 +1,4 @@
+using RMP.Services;
 using Spectre.Console;
 using System.Text;
 using WMPLib;
@@ -6,6 +7,9 @@ namespace RMP;
 
 public class SimpleUI
 {
+    public LogService LogService { get; set; }
+    public SimpleUI(LogService logService) { LogService = logService; }
+
     private int songindex = 0;
     public void Run()
     {
@@ -90,12 +94,13 @@ public class SimpleUI
             switch (choice)
             {
                 case "Play":
-                    MusicPlayback musicPlayback = new MusicPlayback();
+                    MusicPlayback musicPlayback = new MusicPlayback(LogService);
                     musicPlayback.PlayMusic();
                     break;
 
                 case "Search":
-                    ShowSearch();
+                    linq linq = new linq();
+                    linq.Search();
                     break;
 
                 case "Browse":
@@ -120,15 +125,6 @@ public class SimpleUI
 
             }
         }
-    }
-
-    private void ShowSearch()
-    {
-        AnsiConsole.Clear();
-        var searchTerm = AnsiConsole.Ask<string>("Enter search term:");
-        AnsiConsole.MarkupLine($"[yellow]Searching for: {searchTerm}[/]");
-        AnsiConsole.MarkupLine("[dim]Press any key to return...[/]");
-        Console.ReadKey();
     }
 
     private void ShowBrowse()

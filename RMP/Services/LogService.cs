@@ -2,7 +2,7 @@
 
 namespace RMP.Services;
 
-internal class LogService : ILogService
+public class LogService : ILogService
 {
     string logPath = "logs.txt";
     public void LogError(string message)
