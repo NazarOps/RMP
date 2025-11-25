@@ -128,22 +128,6 @@ public class SimpleUI
         }
     }
 
-    private void ShowBrowse()
-    {
-        AnsiConsole.Clear();
-        var category = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Browse by:")
-                .AddChoices(new[] { "Artists", "Albums", "Genres", "Back" }));
-
-        if (category != "Back")
-        {
-            AnsiConsole.MarkupLine($"[yellow]Browsing {category}...[/]");
-            AnsiConsole.MarkupLine("[dim]Press any key to return...[/]");
-            Console.ReadKey();
-        }
-    }
-
     private void ShowPlayerControls()
     {
         AnsiConsole.Clear();
