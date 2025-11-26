@@ -17,10 +17,8 @@ namespace RMP
 
         // Settings values
         public float Volume { get; set; } = 1.0f;   // 0–1 float
-        public bool Shuffle { get; set; } = false;
         public bool Repeat { get; set; } = false;
         public bool SettingsMenu = true;
-        public string LastOpenedPlaylist { get; set; } = "";
         public string Theme { get; set; } = "Default";
 
 
@@ -42,9 +40,7 @@ namespace RMP
                     WriteIndented = true
                 }));
         }
-        // ----------------------------------
-
-
+        
         // -------- SETTINGS MENU --------
 
         public void Adjust()
@@ -70,9 +66,12 @@ namespace RMP
                         AdjustVolume();
                         break;
 
+                    case "Change Theme":
+                        ChangeTheme();
+                        break;
+
                     case "Exit":
                         SettingsMenu = false;
-                        Save();
                         break;
                 }
             }
@@ -92,15 +91,14 @@ namespace RMP
 
                 int volumePercent = (int)(Current.Volume * 100);
 
-                // Draw the volume bar
                 AnsiConsole.Write(
                     new BarChart()
                         .Width(40)
                         .CenterLabel()
-                        .AddItem("Volume", volumePercent, Color.Green));
+                        .AddItem("Volume", volumePercent, Color.BlueViolet));
 
-                AnsiConsole.MarkupLine("\n[green]<-[/] decrease   [green]->[/] increase");
-                AnsiConsole.MarkupLine("[yellow]Press ESC to return.[/]");
+                AnsiConsole.MarkupLine("\n[blue]<-[/] decrease   [blue]->[/] increase");
+                AnsiConsole.MarkupLine("Press [blue]ESC[/] to return");
 
                 var key = Console.ReadKey(true).Key;
 
@@ -123,6 +121,11 @@ namespace RMP
                         break;
                 }
             }
+        }
+
+        private void ChangeTheme()
+        {
+            // here you can change the color of the text and more
         }
     }
 }
