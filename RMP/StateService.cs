@@ -1,28 +1,38 @@
-﻿using System.Runtime.Serialization.Json;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace RMP;
 
-public class StateService
+public static class StateService
 {
-    public StateService()
+
+    /// Saves any object as JSON to a file.
+    /// 
+    public static void Jsonize<T>(T value, string filePath)
     {
-        // here we will load the settings and state from disk
+        var json = JsonSerializer.Serialize(value, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        File.WriteAllText(filePath, json);
     }
 
-    // placeholder for settings
-    private string _settings = "settings";
-    // placeholder for state
-    private string _state = "state";
-    public static void Jsonize<T>(T value)
-    {
-        var json = JsonSerializer.Serialize(value, typeof(T));
+    /// Loads an object from JSON file. Returns default(T) if file is missing or invalid.
 
-    }
-    public static void Dejsonize<T>(string json)
+    public static T Dejsonize<T>(string filePath) where T : new()
     {
-        var obj = JsonSerializer.Deserialize<T>(json);
+        if (!File.Exists(filePath))
+            return new T();
 
-        // here we load the actual state
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<T>(json) ?? new T();
+        }
+        catch
+        {
+            // In case of invalid JSON
+            return new T();
+        }
     }
 }

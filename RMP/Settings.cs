@@ -13,7 +13,8 @@ namespace RMP
         private const string FileName = "settings.json";
 
         // Global settings loaded from JSON
-        public static Settings Current { get; private set; } = Load();
+        public static Settings Current { get; private set; } = StateService.Dejsonize<Settings>(FileName);
+
 
         // Settings values
         public float Volume { get; set; } = 1.0f;   // 0–1 float
@@ -25,20 +26,12 @@ namespace RMP
         // -------- JSON LOAD / SAVE --------
         public static Settings Load()
         {
-            if (!File.Exists(FileName))
-                return new Settings();
-
-            return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName))
-                   ?? new Settings();
+            return StateService.Dejsonize<Settings>(FileName);
         }
 
         public static void Save()
         {
-            File.WriteAllText(FileName,
-                JsonSerializer.Serialize(Current, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
+            StateService.Jsonize(Current, FileName);
         }
         
         // -------- SETTINGS MENU --------
@@ -107,17 +100,16 @@ namespace RMP
                     case ConsoleKey.RightArrow:
                         volumePercent = Math.Min(100, volumePercent + 5);
                         Current.Volume = volumePercent / 100f;
-                        Save();
                         break;
 
                     case ConsoleKey.LeftArrow:
                         volumePercent = Math.Max(0, volumePercent - 5);
                         Current.Volume = volumePercent / 100f;
-                        Save();
                         break;
 
                     case ConsoleKey.Escape:
                         adjusting = false;
+                        Save();
                         break;
                 }
             }
