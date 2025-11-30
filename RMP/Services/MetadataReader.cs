@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RMP.Interfaces;
+using System;
 using System.IO;
 using TagLib;
 
@@ -6,7 +7,7 @@ namespace RMP.Services
 {
     public static class MetadataReader
     {
-        public static SongMetadata Read(string filePath)
+        public static SongMetadata Read(string filePath, ILogService? log = null)
         {
             try
             {
@@ -22,7 +23,12 @@ namespace RMP.Services
                     Duration = file.Properties.Duration.ToString(@"mm\:ss")
                 };
             }
-            catch
+            
+            catch (Exception ex)
+            {
+                log.LogError($"Metadatareader failed for '{filePath}': {ex}");
+            }
+
             {
                 return new SongMetadata
                 {

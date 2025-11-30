@@ -14,7 +14,9 @@ namespace RMP
     public class linq
     {
         bool search = true;
-        public Style SearchHighlightStyle { get; set; }
+
+        public LogService _logService { get; set; }
+        public linq(LogService logService) { _logService = logService; }
 
         public void Search()
         {
@@ -41,6 +43,8 @@ namespace RMP
                 if (results.Count == 0)
                 {
                     AnsiConsole.MarkupLine("[red]No results found.[/]");
+                    _logService.LogWarning($"Search for {searchTerm} returned 0 results in {musicFolder}");
+                    Thread.Sleep(500);
                 }
                 else
                 {
@@ -87,7 +91,6 @@ namespace RMP
                             string safeYear = Markup.Escape(yearReleased);
                             string safeDuration = Markup.Escape((meta.Duration ?? "Unknown"));
 
-                            // use theme color for labels like "Now playing" and artist label
                             AnsiConsole.MarkupLine($"[{primaryColorName}]Now playing:[/] [rapidblink]{safeName}[/]");
                             AnsiConsole.MarkupLine($"[{primaryColorName}]Artist:[/] {safeArtist}");
                             AnsiConsole.MarkupLine($"[{primaryColorName}]Album:[/] {safeAlbum} ({safeYear})");
@@ -185,7 +188,10 @@ namespace RMP
                                 music.controls.stop();
                                 Marshal.ReleaseComObject(music);
                             }
-                            catch { }
+                            catch (Exception ex)
+                            {
+                                _logService.LogInfo($"No results found: {results}");
+                            }
                         }
                         GC.Collect();
                         GC.WaitForPendingFinalizers();

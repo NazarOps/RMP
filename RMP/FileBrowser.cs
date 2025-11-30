@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using RMP.Services;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace RMP
 {
     public class FileBrowser
     {
+        public LogService _logService { get; set; }
+        public FileBrowser(LogService logService) { _logService = logService; }
+
         public void ShowBrowse()
         {
             WindowsMediaPlayer player = null;
@@ -100,7 +104,10 @@ namespace RMP
                         int vol = (int)Math.Clamp(Settings.Current.Volume * 100f, 0f, 100f);
                         SafeCall(() => player.settings.volume = vol);
                     }
-                    catch { /* ignore volume set errors */ }
+                    catch(Exception ex) 
+                    {
+                        _logService.LogWarning(ex.Message);
+                    }
 
                     AnsiConsole.MarkupLine($"[{primaryColorName}]Now playing:[/] [rapidblink]{selectedEscaped}[/]");
                     AnsiConsole.MarkupLine($"[grey]Full path:[/] {Markup.Escape(selectedPath)}");
@@ -190,7 +197,10 @@ namespace RMP
                         player.controls.stop();
                         Marshal.ReleaseComObject(player);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    { 
+                        _logService.LogError($"FileBrowser releasing player failed {ex}"); 
+                    }
                 }
                 GC.Collect();
                 GC.WaitForPendingFinalizers();

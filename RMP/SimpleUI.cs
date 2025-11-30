@@ -101,12 +101,12 @@ public class SimpleUI
                     break;
 
                 case "Search":
-                    linq linq = new linq();
+                    linq linq = new linq(LogService);
                     linq.Search();
                     break;
 
                 case "Browse":
-                    FileBrowser fileBrowser = new FileBrowser();
+                    FileBrowser fileBrowser = new FileBrowser(LogService);
                     fileBrowser.ShowBrowse();
                     break;
 

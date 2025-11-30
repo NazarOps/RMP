@@ -11,7 +11,7 @@ namespace RMP
     public class MusicPlayback
     {
         public int songindex = 0;
-        private LogService _logService { get; set; }
+        public LogService _logService { get; set; }
         public MusicPlayback(LogService logService) { _logService = logService; }
 
         public void PlayMusic()
@@ -27,7 +27,10 @@ namespace RMP
                     int vol = (int)Math.Clamp(Settings.Current.Volume * 100f, 0f, 100f);
                     SafeCall(() => music.settings.volume = vol);
                 }
-                catch { /* ignore volume set errors */ }
+                catch(Exception ex)
+                {
+                    _logService.LogError($"{ex.Message}");
+                }
 
                 bool keepPlaying = true;
 
@@ -187,11 +190,18 @@ namespace RMP
             }
         }
 
-        private static void SafeCall(Action act)
+        private void SafeCall(Action act)
         {
-            try { act(); }
-            catch (COMException) { }
-            catch { }
+            try 
+            { 
+                act(); 
+            }
+            catch (COMException ComEx) 
+            {
+                _logService.LogWarning($"COMException: {ComEx.Message}"); 
+                    
+            }
+            catch {}
         }
 
         private static double SafeGetDouble(Func<double> get)
