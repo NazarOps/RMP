@@ -79,7 +79,7 @@ public class SimpleUI
             AnsiConsole.Clear();
             AnsiConsole.Write(
                 new FigletText("RMP")
-                .Color(Color)
+                .Color(theme.GetPrimaryColor())
             );
 
             AnsiConsole.MarkupLine("What would you like to do?");
@@ -89,7 +89,7 @@ public class SimpleUI
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .AddChoices(menuItems)
-                .HighlightStyle(new Style(Color.Blue))
+                .HighlightStyle(new Style(theme.GetPrimaryColor()))
                 .PageSize(menuItems.Length)
             );
 

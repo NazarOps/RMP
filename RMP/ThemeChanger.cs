@@ -11,6 +11,10 @@ namespace RMP
     {
         public void ChangeTheme()
         {
+            var theme = new ThemeChanger();
+            var primaryColorName = theme.GetPrimaryColorName();
+            var primaryColor = theme.GetPrimaryColor();
+
             AnsiConsole.Clear();
 
             new FigletText("THEME CHANGER");
@@ -20,7 +24,7 @@ namespace RMP
             new SelectionPrompt<string>()
             .Title("Select a theme:")
             .AddChoices(themes)
-            .HighlightStyle(new Style(Color.Blue)));
+            .HighlightStyle(new Style(primaryColor)));
 
             Settings.Current.Theme = selectedTheme;
             Settings.Save();

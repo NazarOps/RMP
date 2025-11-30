@@ -14,6 +14,11 @@ namespace RMP
         public void ShowBrowse()
         {
             WindowsMediaPlayer player = null;
+
+            var theme = new ThemeChanger();
+            var primaryColorName = theme.GetPrimaryColorName();
+            var primaryColor = theme.GetPrimaryColor();
+
             bool Browser = true;
             try
             {
@@ -65,10 +70,10 @@ namespace RMP
                     // Display interactive "table"
                     var selectedEscaped = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
-                            .Title("[Blue]Select a song:[/]")
+                            .Title($"Select a song:")
                             .PageSize(15)
-                            .MoreChoicesText("[grey](Use ↑↓ to navigate)[/]")
-                            .HighlightStyle("blue bold")
+                            .MoreChoicesText("(Use ↑↓ to navigate)")
+                            .HighlightStyle(new Style(primaryColor))
                             .AddChoices(choices)
                     );
 
@@ -97,9 +102,9 @@ namespace RMP
                     }
                     catch { /* ignore volume set errors */ }
 
-                    AnsiConsole.MarkupLine($"[blue]Now playing:[/] [rapidblink]{selectedEscaped}[/]");
+                    AnsiConsole.MarkupLine($"[{primaryColorName}]Now playing:[/] [rapidblink]{selectedEscaped}[/]");
                     AnsiConsole.MarkupLine($"[grey]Full path:[/] {Markup.Escape(selectedPath)}");
-                    AnsiConsole.Markup("\nUse [blue]↑↓[/] to change volume");
+                    AnsiConsole.Markup($"\nUse [{primaryColorName}]↑↓[/] to change volume");
 
                     int waitCount = 0;
                     double duration = 0;
@@ -120,10 +125,10 @@ namespace RMP
                         new TaskDescriptionColumn(),
                         new ProgressBarColumn
                         {
-                            CompletedStyle = new Style(Color.Blue)
+                            CompletedStyle = new Style(primaryColor)
                         },
                         new PercentageColumn(),
-                        new SpinnerColumn(Spinner.Known.Dots2) { Style = new Style(Color.Blue) }
+                        new SpinnerColumn(Spinner.Known.Dots2) { Style = new Style(theme.GetPrimaryColor()) }
                         })
                         .Start(ctx =>
                         {
@@ -132,7 +137,7 @@ namespace RMP
 
 
                             // Continue?
-                            AnsiConsole.Markup("\nPress [blue]ENTER[/] to pick another song");
+                            AnsiConsole.Markup($"\nPress [{primaryColorName}]ENTER[/] to pick another song");
 
 
                             while (!ctx.IsFinished)

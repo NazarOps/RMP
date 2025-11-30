@@ -40,17 +40,20 @@ namespace RMP
         {
             while (SettingsMenu)
             {
+                var theme = new ThemeChanger();
+                var primaryColorName = theme.GetPrimaryColorName();
+
                 AnsiConsole.Clear();
                 AnsiConsole.Write(
                     new FigletText("Settings")
-                    .Color(Color.Blue)
+                    .Color(theme.GetPrimaryColor())
                 );
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Choose an option:")
                         .AddChoices("Adjust volume", "Change Theme", "Exit")
-                        .HighlightStyle(new Style(Color.Blue))
+                        .HighlightStyle(theme.GetPrimaryColor())
                 );
 
                 switch (choice)
@@ -73,6 +76,9 @@ namespace RMP
 
         private void AdjustVolume()
         {
+            var theme = new ThemeChanger();
+            var primaryColorName = theme.GetPrimaryColorName();
+
             bool adjusting = true;
 
             while (adjusting)
@@ -80,7 +86,7 @@ namespace RMP
                 AnsiConsole.Clear();
                 AnsiConsole.Write(
                     new FigletText("VOLUME")
-                    .Color(Color.Blue));
+                    .Color(theme.GetPrimaryColor()));
 
                 int volumePercent = (int)(Current.Volume * 100);
 
@@ -88,10 +94,10 @@ namespace RMP
                     new BarChart()
                         .Width(40)
                         .CenterLabel()
-                        .AddItem("Volume", volumePercent, Color.BlueViolet));
+                        .AddItem("Volume", volumePercent, theme.GetPrimaryColor()));
 
-                AnsiConsole.MarkupLine("\n[blue]<-[/] decrease   [blue]->[/] increase");
-                AnsiConsole.MarkupLine("Press [blue]ESC[/] to return");
+                AnsiConsole.MarkupLine($"\n[{primaryColorName}]<-[/] decrease   [{primaryColorName}]->[/] increase");
+                AnsiConsole.MarkupLine($"Press [{primaryColorName}]ESC[/] to return");
 
                 var key = Console.ReadKey(true).Key;
 

@@ -73,10 +73,10 @@ namespace RMP
                     string safeDuration = Markup.Escape(durationText);
 
                     // Use markup tags for colors and embed escaped content inside
-                    AnsiConsole.MarkupLine($"[{primaryColorName}]Now playing:[/][rapidblink]{safeTitle}[/]");
+                    AnsiConsole.MarkupLine($"[{primaryColorName}]Now playing:[/][rapidblink] {safeTitle}[/]");
                     AnsiConsole.MarkupLine($"[{primaryColorName}]Artist:[/] {safeArtist}");
                     AnsiConsole.MarkupLine($"[{primaryColorName}]Album:[/] {safeAlbum} ({safeYear})");
-                    AnsiConsole.MarkupLine($"[{primaryColorName}]Length:[/] {safeDuration}");
+                    AnsiConsole.MarkupLine($"[{primaryColorName}]Duration:[/] {safeDuration}");
                     AnsiConsole.MarkupLine($"[{primaryColorName}]Press ESC to go back to menu[/]");
 
                     // give the player a short moment to load metadata
