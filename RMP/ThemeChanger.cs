@@ -28,6 +28,9 @@ namespace RMP
 
             Settings.Current.Theme = selectedTheme;
             Settings.Save();
+
+            AnsiConsole.MarkupLine($"Theme changed to {selectedTheme}");
+            Thread.Sleep(500);
         }
 
         public Color GetPrimaryColor()
