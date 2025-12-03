@@ -1,6 +1,6 @@
 # 🎵 RMP
 
-**RMP** is a C# project for managing music metadata, playing music, and browsing/searching files.  
+**RMP** is a lightweight music player made with C#. RMP's features are as follows: managing music metadata, playing music, and browsing/searching songs with LINQ.  
 It features a console-based UI, logging, state management, and theme support. Modular and easy to extend, RMP works well for small music apps or as a framework for larger projects.
 
 ---
